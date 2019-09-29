@@ -3,14 +3,18 @@
 # Diseño de sistemas inteligentes - IDS 9A - Universidad Politécnica de Chiapas
 
 from anytree.dotexport import RenderTreeGraph
-from anytree import Node, PreOrderIter
+from anytree import Node, PreOrderIter, RenderTree
 import pygraphviz as pvg
 import numpy as np
 import string
+import os, hashlib
 
 def diff(first, second):
     second = set(second)
     return [item for item in first if item not in second]
+
+def randomID():
+    return hashlib.md5(os.urandom(32)).hexdigest()
 
 def exportToImage(root, nombre="arbol.png"):
     """
@@ -118,10 +122,10 @@ def llenarElNodoDeHijosConLasLetrasRestantes(padre, letras):
                 letrasQueYaSeEncuentran.append(padreCopy.name)
     letrasRestantes = diff(letras, letrasQueYaSeEncuentran)
 
-    print(letrasRestantes)
     for restante in letrasRestantes:
         if(restante not in letrasQueYaSeEncuentran):
-            nuevosNodos.append(Node(restante, parent=padre))
+            id_ = randomID()
+            nuevosNodos.append(Node(restante, id=id_, parent=padre))
     
     return padre
     # padre_ = 1
@@ -149,30 +153,21 @@ def construirArbolConLaPalabra(palabra, letras, niveles=5):
     Raíz del árbol construido con todos sus hijos
     """
     raiz = Node("NULL")
-    palabraCopy = palabra
-    nodos = []
     for letra in letras:
         nodo = Node(letra,parent=raiz)
-        nodos.append(nodo)
     
-    while (niveles >= 1):
-        primeraLetra = primeraLetraDeLaPalabra(palabraCopy)
-        if(primeraLetra):
-            nodoConLaPrimeraLetra = encontrarUnNodoConEsteValor(raiz, primeraLetra)
-            palabraCopy = reemplazarEnLaPalabra(palabraCopy, primeraLetra)
-            nodoConLaPrimeraLetra.children += (Node(primeraLetra, parent=nodoConLaPrimeraLetra),)
-            nodoConLaPrimeraLetra = llenarElNodoDeHijosConLasLetrasRestantes(nodoConLaPrimeraLetra, letras)
-            # print(nodoConLaPrimeraLetra)
-        else:
-            print('Termine de llenar las letras correctas en el arbol')
-        niveles-=1
-    return raiz, nodos
+    # while (niveles >= 1):
+    for nodo in raiz.children:
+        nodo = llenarElNodoDeHijosConLasLetrasRestantes(nodo, letras)
+    # niveles -= 1
+    return raiz
 
 
 if __name__ == "__main__":
     letras = obtenerLetrasDelAbecedario()
-    np.random.shuffle(letras.flat) # Ordenar de manera aleatoria
-    raiz,nodos = construirArbolConLaPalabra("PEZ", letras)
+    # np.random.shuffle(letras.flat) # Ordenar de manera aleatoria
+    raiz = construirArbolConLaPalabra("PEZ", letras)
+    print(RenderTree(raiz))
     exportToImage(raiz)
 
     
