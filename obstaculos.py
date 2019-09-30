@@ -1,10 +1,65 @@
+from anytree.dotexport import RenderTreeGraph
+from anytree.exporter import DotExporter
+from anytree import Node, PreOrderIter, RenderTree
+import pygraphviz as pvg
 import numpy as np
 from collections import deque
 import random
+import os, hashlib
+
+def uniqueID():
+    return hashlib.md5(os.urandom(32)).hexdigest()[:3]
 
 def indiceAleatorio(limite):
     return random.randint(0,limite-1)
 
+
+def encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoPadre):
+    # FIlas y columas
+    hijosCreados = []
+    # Arriba
+    print(xInicio, yInicio)
+    print(tablero)
+    print (tablero[xInicio, yInicio])
+    print (tablero[xInicio, yInicio-1])
+    print (tablero[xInicio-1, yInicio])
+    try: 
+        if(tablero[xInicio, yInicio-1] != -1):
+            print(tablero[xInicio, yInicio-1])
+            unique_id = uniqueID()
+            hijosCreados.append(Node(tablero[xInicio, yInicio-1], id=unique_id, parent=nodoPadre))
+    except IndexError:
+        print('no puede ir hacia arriba')
+    # Derecha
+    try:
+        if(tablero[xInicio+1, yInicio] != -1):
+            print(tablero[xInicio+1, yInicio])
+            unique_id = uniqueID()  
+            hijosCreados.append(Node(tablero[xInicio+1, yInicio], id=unique_id, parent=nodoPadre))
+    except IndexError:
+        print('no puede ir hacia la derecha')
+    
+    # Izquierda
+    try:
+        if(tablero[xInicio-1, yInicio] != -1):
+            print(tablero[xInicio-1, yInicio])
+            unique_id = uniqueID()
+            hijosCreados.append(Node(tablero[xInicio-1, yInicio], id=unique_id, parent=nodoPadre))
+    except IndexError:
+        print('no puede ir hacia la izquierda')
+    
+    # Abajo
+    try:
+        if(tablero[xInicio, yInicio+1] != -1):
+            print(tablero[xInicio-1, yInicio])
+            unique_id = uniqueID()
+            hijosCreados.append(Node(tablero[xInicio, yInicio+1], id=unique_id, parent=nodoPadre))
+    except IndexError:
+        print('no puede ir hacia abajo')
+
+    print(hijosCreados)
+    nodoPadre.children = hijosCreados
+    return nodoPadre
 
 def generarObstaculos(tablero, obstaculos=3):
     """
@@ -25,14 +80,13 @@ def generarObstaculos(tablero, obstaculos=3):
         tablero[x][y] = -1  # Obstáculo
     return tablero
     
-      
-    
-        
 
 if __name__ == "__main__":
     cantidadFilas = 5
     tablero = np.arange(start=1, stop=((cantidadFilas*cantidadFilas)+1), step=1).reshape(cantidadFilas,cantidadFilas)
     
+    print(tablero[2][4])
+
     tablero = generarObstaculos(tablero, obstaculos=5)
 
     while(0 not in tablero):
@@ -48,4 +102,19 @@ if __name__ == "__main__":
                 tablero[xInicio][yInicio] = 0
                 # Fijar la casilla final
                 tablero[xSalida][ySalida] = -100
-    print(tablero)
+
+    print("Explorando el tablero...\n")
+    raiz_id = uniqueID()
+    nodoRaiz = Node(tablero[xInicio][yInicio], id=raiz_id)# Raíz del árbol
+
+    nodoRaiz = encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoRaiz)
+    # print(RenderTree(nodoRaiz))
+
+    print('Exportando a .dot ...')
+    DotExporter(nodoRaiz).to_dotfile('obstaculos.dot')
+    print('Exportando a una imagen ...')
+    #Generar imagen con el formato .dot
+    G=pvg.AGraph("obstaculos.dot")
+    G.layout(prog='dot')
+    G.draw('obstaculos_dot.png')
+
