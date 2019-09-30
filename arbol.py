@@ -3,18 +3,22 @@
 # Diseño de sistemas inteligentes - IDS 9A - Universidad Politécnica de Chiapas
 
 from anytree.dotexport import RenderTreeGraph
+from anytree.exporter import DotExporter
 from anytree import Node, PreOrderIter, RenderTree
 import pygraphviz as pvg
 import numpy as np
 import string
 import os, hashlib
 
+
+_iteracion = 1
+
 def diff(first, second):
     second = set(second)
     return [item for item in first if item not in second]
 
 def randomID():
-    return hashlib.md5(os.urandom(32)).hexdigest()
+    return hashlib.md5(os.urandom(32)).hexdigest()[:5]
 
 def exportToImage(root, nombre="arbol.png"):
     """
@@ -119,14 +123,20 @@ def llenarElNodoDeHijosConLasLetrasRestantes(padre, letras):
         padreCopy = padreCopy.parent
         if(padreCopy != None):
             if(padreCopy.name != "NULL"):
-                letrasQueYaSeEncuentran.append(padreCopy.name)
-    letrasRestantes = diff(letras, letrasQueYaSeEncuentran)
+                if "_" in padreCopy.name:
+                    _split = padreCopy.name.split('_')
+                    letrasQueYaSeEncuentran.append(_split[0])
+                else:
+                    letrasQueYaSeEncuentran.append(padreCopy.name)
 
+    letrasRestantes = diff(letras, letrasQueYaSeEncuentran)
     for restante in letrasRestantes:
         if(restante not in letrasQueYaSeEncuentran):
             id_ = randomID()
-            nuevosNodos.append(Node(restante, id=id_, parent=padre))
+            _split = padreCopy.name.split('_')
+            nuevosNodos.append(Node(f'{restante}_{id_}', id=id_, parent=padre))
     
+    padre.children = nuevosNodos
     return padre
     # padre_ = 1
     # while (padre_ != "/NULL"):
@@ -138,7 +148,7 @@ def llenarElNodoDeHijosConLasLetrasRestantes(padre, letras):
     
 
 
-def construirArbolConLaPalabra(palabra, letras, niveles=5):
+def construirArbolConLaPalabra(palabra, letras, niveles=1):
     """Construye el árbol con las letras correctas e incorrectas.
     
     Parameters:
@@ -154,21 +164,34 @@ def construirArbolConLaPalabra(palabra, letras, niveles=5):
     """
     raiz = Node("NULL")
     for letra in letras:
-        nodo = Node(letra,parent=raiz)
+        id_ = randomID()
+        nodo = Node(letra, id=id_, parent=raiz)
     
     # while (niveles >= 1):
-    for nodo in raiz.children:
+        # for nodo in raiz.children:
+        #     nodo = llenarElNodoDeHijosConLasLetrasRestantes(nodo, letras)
+    for nodo in PreOrderIter(raiz):
         nodo = llenarElNodoDeHijosConLasLetrasRestantes(nodo, letras)
-    # niveles -= 1
+        # niveles -= 1
     return raiz
 
 
 if __name__ == "__main__":
-    letras = obtenerLetrasDelAbecedario()
+    letras = obtenerLetrasDelAbecedario()[:3]
     # np.random.shuffle(letras.flat) # Ordenar de manera aleatoria
+    print('Construyendo arbol ...')
     raiz = construirArbolConLaPalabra("PEZ", letras)
-    print(RenderTree(raiz))
-    exportToImage(raiz)
+
+    # exportToImage(raiz)
+
+    #exportar al archivo .dot para abrir con graphviz
+    print('Exportando a .dot ...')
+    DotExporter(raiz).to_dotfile('arbol.dot')
+    print('Exportando a una imagen ...')
+    #Generar imagen con el formato .dot
+    G=pvg.AGraph("arbol.dot")
+    G.layout(prog='dot')
+    G.draw('arbol_dot.png')
 
     
     
