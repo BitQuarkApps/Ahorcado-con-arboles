@@ -15,45 +15,39 @@ def indiceAleatorio(limite):
 
 
 def encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoPadre):
-    # FIlas y columas
     hijosCreados = []
     # Arriba
-    print(xInicio, yInicio)
-    print(tablero)
-    print (tablero[xInicio, yInicio])
-    print (tablero[xInicio, yInicio-1])
-    print (tablero[xInicio-1, yInicio])
     try: 
-        if(tablero[xInicio, yInicio-1] != -1):
-            print(tablero[xInicio, yInicio-1])
-            unique_id = uniqueID()
-            hijosCreados.append(Node(tablero[xInicio, yInicio-1], id=unique_id, parent=nodoPadre))
-    except IndexError:
-        print('no puede ir hacia arriba')
-    # Derecha
-    try:
-        if(tablero[xInicio+1, yInicio] != -1):
-            print(tablero[xInicio+1, yInicio])
-            unique_id = uniqueID()  
-            hijosCreados.append(Node(tablero[xInicio+1, yInicio], id=unique_id, parent=nodoPadre))
-    except IndexError:
-        print('no puede ir hacia la derecha')
-    
-    # Izquierda
-    try:
         if(tablero[xInicio-1, yInicio] != -1):
             print(tablero[xInicio-1, yInicio])
             unique_id = uniqueID()
             hijosCreados.append(Node(tablero[xInicio-1, yInicio], id=unique_id, parent=nodoPadre))
     except IndexError:
+        print('no puede ir hacia arriba')
+    # Derecha
+    try:
+        if(tablero[xInicio, yInicio+1] != -1):
+            print(tablero[xInicio, yInicio+1])
+            unique_id = uniqueID()  
+            hijosCreados.append(Node(tablero[xInicio, yInicio+1], id=unique_id, parent=nodoPadre))
+    except IndexError:
+        print('no puede ir hacia la derecha')
+    
+    # Izquierda
+    try:
+        if(tablero[xInicio, yInicio-1] != -1):
+            print(tablero[xInicio, yInicio-1])
+            unique_id = uniqueID()
+            hijosCreados.append(Node(tablero[xInicio, yInicio-1], id=unique_id, parent=nodoPadre))
+    except IndexError:
         print('no puede ir hacia la izquierda')
     
     # Abajo
     try:
-        if(tablero[xInicio, yInicio+1] != -1):
-            print(tablero[xInicio-1, yInicio])
+        if(tablero[xInicio+1, yInicio] != -1):
+            print(tablero[xInicio+1, yInicio])
             unique_id = uniqueID()
-            hijosCreados.append(Node(tablero[xInicio, yInicio+1], id=unique_id, parent=nodoPadre))
+            hijosCreados.append(Node(tablero[xInicio+1, yInicio], id=unique_id, parent=nodoPadre))
     except IndexError:
         print('no puede ir hacia abajo')
 
@@ -84,8 +78,6 @@ def generarObstaculos(tablero, obstaculos=3):
 if __name__ == "__main__":
     cantidadFilas = 5
     tablero = np.arange(start=1, stop=((cantidadFilas*cantidadFilas)+1), step=1).reshape(cantidadFilas,cantidadFilas)
-    
-    print(tablero[2][4])
 
     tablero = generarObstaculos(tablero, obstaculos=5)
 
@@ -103,6 +95,7 @@ if __name__ == "__main__":
                 # Fijar la casilla final
                 tablero[xSalida][ySalida] = -100
 
+    print(tablero)
     print("Explorando el tablero...\n")
     raiz_id = uniqueID()
     nodoRaiz = Node(tablero[xInicio][yInicio], id=raiz_id)# Raíz del árbol
