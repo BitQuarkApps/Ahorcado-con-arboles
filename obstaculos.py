@@ -5,7 +5,8 @@ import pygraphviz as pvg
 import numpy as np
 from collections import deque
 import random
-import os, hashlib
+import os, hashlib, sys
+import pprint
 
 def uniqueID():
     return hashlib.md5(os.urandom(32)).hexdigest()[:3]
@@ -69,68 +70,143 @@ def generarObstaculos(tablero, obstaculos=3):
     Tablero con obstáculos aleatorios
     """
     for i in range(obstaculos+1):
-        x = indiceAleatorio(tablero.shape[0])
-        y = indiceAleatorio(tablero.shape[1])
+        x = indiceAleatorio(len(tablero))
+        y = indiceAleatorio(len(tablero[0]))
         tablero[x][y] = -1  # Obstáculo
     return tablero
     
+arbol = []  # Árbol con los nodos generados
+
+# ---------- Búsqueda recursiva por el tablero y generación del árbol de búsqueda ----------
+
+def recorridoTablero(tablero, x, y):
+    print("Haciendo recorrido....")
+    try:
+        if(tablero[x][y] != -100 or tablero[x][y] != -1):
+            recorridoTablero(tablero, recorrerArriba(tablero, x, y), y)
+            recorridoTablero(tablero, x, recorrerDerecha(tablero, x, y))
+            recorridoTablero(tablero, recorrerAbajo(tablero, x, y), y)
+            recorridoTablero(tablero, x, recorrerIzquierda(tablero, x, y))
+    except IndexError:
+        print('Fuera de limites')
+
+# ---------- Métodos para recorrer el tablero ----------
+def recorrerArriba(tablero, x, y):
+    try:
+        x-=1
+        if(tablero[x][y] != -100 or tablero[x][y] != -1):
+            unique_id = uniqueID()
+            parentNode = Node(tablero[x+1][y], id=unique_id)
+            unique_id = uniqueID()
+            arbol.append(Node(tablero[x][y], id=unique_id, parent=parentNode))
+            print(f'ARRIBA => {tablero[x][y]}')
+    except IndexError:
+        print('Fuera de limites [ARRIBA]')
+
+    return x
+
+def recorrerDerecha(tablero, x, y):
+    try:
+        y+=1
+        if(tablero[x][y] != -100 or tablero[x][y] != -1):
+            unique_id = uniqueID()
+            parentNode = Node(tablero[x][y-1], id=unique_id)
+            unique_id = uniqueID()
+            arbol.append(Node(tablero[x][y], id=unique_id, parent=parentNode))
+            print(f'DERECHA => {tablero[x][y]}')
+    except IndexError:
+        print('Fuera de limites [DERECHA]')
+
+    return y
+
+def recorrerAbajo(tablero, x, y):
+    try:
+        x+=1
+        if(tablero[x][y] != -100 or tablero[x][y] != -1):
+            unique_id = uniqueID()
+            parentNode = Node(tablero[x-1][y], id=unique_id)
+            unique_id = uniqueID()
+            arbol.append(Node(tablero[x][y], id=unique_id, parent=parentNode))
+            print(f'ABAJO => {tablero[x][y]}')
+    except IndexError:
+        print('Fuera de limites [ABAJO]')
+
+    return x
+    
+def recorrerIzquierda(tablero, x, y):
+    try:
+        y-=1
+        if(tablero[x][y] != -100 or tablero[x][y] != -1):
+            unique_id = uniqueID()
+            parentNode = Node(tablero[x][y+1], id=unique_id)
+            unique_id = uniqueID()
+            arbol.append(Node(tablero[x][y], id=unique_id, parent=parentNode))
+            print(f'IZQUIERDA => {tablero[x][y]}')
+    except IndexError:
+        print('Fuera de limites [IZQUIERDA]')
+
+    return y
 
 if __name__ == "__main__":
-    cantidadFilas = 5
-    obstaculos_ = 3
-    tablero = np.arange(start=1, stop=((cantidadFilas*cantidadFilas)+1), step=1).reshape(cantidadFilas,cantidadFilas)
+    cantidadFilas = 3
+    obstaculos_ = 1
+    
+    tablero = []
+    contador = 0
+    for i in range(0, cantidadFilas):
+        row = []
+        for j in range(contador+1, (contador + cantidadFilas)+1):
+            row.append(j)
+            contador = j
+        tablero.append(row)
 
     tablero = generarObstaculos(tablero, obstaculos=obstaculos_)
+    
+    xInicio = indiceAleatorio(len(tablero))
+    yInicio = indiceAleatorio(len(tablero[0]))
 
-    while(0 not in tablero):
-        xInicio = indiceAleatorio(tablero.shape[0])
-        yInicio = indiceAleatorio(tablero.shape[1])
+    xSalida = indiceAleatorio(len(tablero))
+    ySalida = indiceAleatorio(len(tablero[0]))
+    tablero[xInicio][yInicio] = 0
+    # Fijar la casilla final
+    tablero[xSalida][ySalida] = -100
 
-        xSalida = indiceAleatorio(tablero.shape[0])
-        ySalida = indiceAleatorio(tablero.shape[1])
+    pprint.pprint(tablero, indent=4)
+    # raiz_id = uniqueID()
+    # nodoRaiz = Node(tablero[xInicio][yInicio], id=raiz_id)# Raíz del árbol
+    sys.setrecursionlimit(10000)
+    recorridoTablero(tablero, xInicio, yInicio)
 
-        if(tablero[xInicio][yInicio] != -1):
-            if(tablero[xSalida][ySalida] != -1):
-                # Fijar la casilla de salida con [0]
-                tablero[xInicio][yInicio] = 0
-                # Fijar la casilla final
-                tablero[xSalida][ySalida] = -100
-
-    print(tablero)    
-    raiz_id = uniqueID()
-    nodoRaiz = Node(tablero[xInicio][yInicio], id=raiz_id)# Raíz del árbol
-
-    nodoRaiz = encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoRaiz)
+    # nodoRaiz = encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoRaiz)
     # print(RenderTree(nodoRaiz))
 
     # print("Realizando busqueda en profundidad para la raíz")
-    cola = []
+    # cola = []
     
-    for hijo in nodoRaiz.children:
-        cola.append(hijo)
-        posicionDelNodoEnLaMatriz = np.where(tablero == hijo.name)
-        posicionX = posicionDelNodoEnLaMatriz[0]
-        posicionY = posicionDelNodoEnLaMatriz[1]
-        hijo = encontrarNodosEnLasCuatroDirecciones(tablero, posicionX, posicionY, hijo)
+    # for hijo in nodoRaiz.children:
+    #     cola.append(hijo)
+    #     posicionDelNodoEnLaMatriz = np.where(tablero == hijo.name)
+    #     posicionX = posicionDelNodoEnLaMatriz[0]
+    #     posicionY = posicionDelNodoEnLaMatriz[1]
+    #     hijo = encontrarNodosEnLasCuatroDirecciones(tablero, posicionX, posicionY, hijo)
     
-    while len(cola) > 0:
-        nodoCursor = cola.pop(0)
-        for hijo in nodoCursor.children:
-            cola.append(hijo)
-            posicionDelNodoEnLaMatriz = np.where(tablero == hijo.name)
-            posicionX = posicionDelNodoEnLaMatriz[0]
-            posicionY = posicionDelNodoEnLaMatriz[1]
-            hijo = encontrarNodosEnLasCuatroDirecciones(tablero, posicionX, posicionY, hijo)
 
+    # # Aquí se cicla :"v
+    # while len(cola) > 0:
+    #     nodoCursor = cola.pop(0)
+    #     for hijo in nodoCursor.children:
+    #         cola.append(hijo)
+    #         posicionDelNodoEnLaMatriz = np.where(tablero == hijo.name)
+    #         posicionX = posicionDelNodoEnLaMatriz[0]
+    #         posicionY = posicionDelNodoEnLaMatriz[1]
+    #         hijo = encontrarNodosEnLasCuatroDirecciones(tablero, posicionX, posicionY, hijo)
 
-
-    
+    raizArbol = arbol.pop(0) # Obtener el primero
 
     # print('Exportando a .dot ...')
-    DotExporter(nodoRaiz).to_dotfile('obstaculos.dot')
+    DotExporter(raizArbol).to_dotfile('arbol.dot')
     # print('Exportando a una imagen ...')
     #Generar imagen con el formato .dot
-    G=pvg.AGraph("obstaculos.dot")
+    G=pvg.AGraph("arbol.dot")
     G.layout(prog='dot')
-    G.draw('obstaculos_dot.png')
-
+    G.draw('arbol_dot.png')
