@@ -15,11 +15,15 @@ def indiceAleatorio(limite):
 
 
 def encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoPadre):
+    print("Explorando el tablero...\n")
     hijosCreados = []
+    str_ = f'{nodoPadre.name}'
+    print(f'{nodoPadre.name}')
+    if(str_ == "[-100]"):
+        return nodoPadre
     # Arriba
     try: 
         if(tablero[xInicio-1, yInicio] != -1):
-            print(tablero[xInicio-1, yInicio])
             unique_id = uniqueID()
             hijosCreados.append(Node(tablero[xInicio-1, yInicio], id=unique_id, parent=nodoPadre))
     except IndexError:
@@ -27,7 +31,6 @@ def encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoPadre):
     # Derecha
     try:
         if(tablero[xInicio, yInicio+1] != -1):
-            print(tablero[xInicio, yInicio+1])
             unique_id = uniqueID()  
             hijosCreados.append(Node(tablero[xInicio, yInicio+1], id=unique_id, parent=nodoPadre))
     except IndexError:
@@ -36,7 +39,6 @@ def encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoPadre):
     # Izquierda
     try:
         if(tablero[xInicio, yInicio-1] != -1):
-            print(tablero[xInicio, yInicio-1])
             unique_id = uniqueID()
             hijosCreados.append(Node(tablero[xInicio, yInicio-1], id=unique_id, parent=nodoPadre))
     except IndexError:
@@ -45,13 +47,11 @@ def encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoPadre):
     # Abajo
     try:
         if(tablero[xInicio+1, yInicio] != -1):
-            print(tablero[xInicio+1, yInicio])
             unique_id = uniqueID()
             hijosCreados.append(Node(tablero[xInicio+1, yInicio], id=unique_id, parent=nodoPadre))
     except IndexError:
         print('no puede ir hacia abajo')
 
-    print(hijosCreados)
     nodoPadre.children = hijosCreados
     return nodoPadre
 
@@ -77,9 +77,10 @@ def generarObstaculos(tablero, obstaculos=3):
 
 if __name__ == "__main__":
     cantidadFilas = 5
+    obstaculos_ = 3
     tablero = np.arange(start=1, stop=((cantidadFilas*cantidadFilas)+1), step=1).reshape(cantidadFilas,cantidadFilas)
 
-    tablero = generarObstaculos(tablero, obstaculos=5)
+    tablero = generarObstaculos(tablero, obstaculos=obstaculos_)
 
     while(0 not in tablero):
         xInicio = indiceAleatorio(tablero.shape[0])
@@ -95,17 +96,39 @@ if __name__ == "__main__":
                 # Fijar la casilla final
                 tablero[xSalida][ySalida] = -100
 
-    print(tablero)
-    print("Explorando el tablero...\n")
+    print(tablero)    
     raiz_id = uniqueID()
     nodoRaiz = Node(tablero[xInicio][yInicio], id=raiz_id)# Raíz del árbol
 
     nodoRaiz = encontrarNodosEnLasCuatroDirecciones(tablero, xInicio, yInicio, nodoRaiz)
     # print(RenderTree(nodoRaiz))
 
-    print('Exportando a .dot ...')
+    # print("Realizando busqueda en profundidad para la raíz")
+    cola = []
+    
+    for hijo in nodoRaiz.children:
+        cola.append(hijo)
+        posicionDelNodoEnLaMatriz = np.where(tablero == hijo.name)
+        posicionX = posicionDelNodoEnLaMatriz[0]
+        posicionY = posicionDelNodoEnLaMatriz[1]
+        hijo = encontrarNodosEnLasCuatroDirecciones(tablero, posicionX, posicionY, hijo)
+    
+    while len(cola) > 0:
+        nodoCursor = cola.pop(0)
+        for hijo in nodoCursor.children:
+            cola.append(hijo)
+            posicionDelNodoEnLaMatriz = np.where(tablero == hijo.name)
+            posicionX = posicionDelNodoEnLaMatriz[0]
+            posicionY = posicionDelNodoEnLaMatriz[1]
+            hijo = encontrarNodosEnLasCuatroDirecciones(tablero, posicionX, posicionY, hijo)
+
+
+
+    
+
+    # print('Exportando a .dot ...')
     DotExporter(nodoRaiz).to_dotfile('obstaculos.dot')
-    print('Exportando a una imagen ...')
+    # print('Exportando a una imagen ...')
     #Generar imagen con el formato .dot
     G=pvg.AGraph("obstaculos.dot")
     G.layout(prog='dot')
