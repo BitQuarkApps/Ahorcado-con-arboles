@@ -54,59 +54,58 @@ def validarSiElValorLoTieneMiPapa(nodoHijo, valor):
 
 def buscarAlosAlrededores(pila, nodoPadre, tablero, x, y):
 
-	if(nodoPadre.name == -100):
-		return 
-	# Ir hacia arriba
-	try:
-		if tablero[x-1][y] != -1 and x > 0:
-			print(f'El nodo [{nodoPadre.name}] va hacia arriba')
-			debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x-1][y])
-			if debeAgregarHijo == False:
-				nuevoNodoHijo = Node(tablero[x-1][y], parent=nodoPadre)
-				pila.append(nuevoNodoHijo)
-				return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x-1, y)
+	if(nodoPadre.name != -100):
+		# Ir hacia arriba
+		try:
+			if tablero[x-1][y] != -1 and x > 0:
+				print(f'El nodo [{nodoPadre.name}] va hacia arriba')
+				debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x-1][y])
+				if debeAgregarHijo == False:
+					nuevoNodoHijo = Node(tablero[x-1][y], parent=nodoPadre)
+					pila.append(nuevoNodoHijo)
+					return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x-1, y)
 
-	except IndexError:
-		print("No puede ir hacia arriba")
+		except IndexError:
+			print("No puede ir hacia arriba")
 
-	# Ir hacia la derecha
-	try:
-		if tablero[x][y+1] != -1:
-			print(f'El nodo [{nodoPadre.name}] va hacia la derecha')
-			debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x][y+1])
-			if debeAgregarHijo == False:
-				nuevoNodoHijo = Node(tablero[x][y+1], parent=nodoPadre)
-				pila.append(nuevoNodoHijo)
-				return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x, y+1)
+		# Ir hacia la derecha
+		try:
+			if tablero[x][y+1] != -1:
+				print(f'El nodo [{nodoPadre.name}] va hacia la derecha')
+				debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x][y+1])
+				if debeAgregarHijo == False:
+					nuevoNodoHijo = Node(tablero[x][y+1], parent=nodoPadre)
+					pila.append(nuevoNodoHijo)
+					return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x, y+1)
 
-	except IndexError:
-		print("No se puede ir hacia la derecha")
+		except IndexError:
+			print("No se puede ir hacia la derecha")
 
-	# Ir hacia abajo
-	try:
-		if tablero[x+1][y] != -1:
-			print(f'El nodo [{nodoPadre.name}] va hacia abajo')
-			debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x+1][y])
-			if debeAgregarHijo == False:
-				nuevoNodoHijo = Node(tablero[x+1][y], parent=nodoPadre)
-				pila.append(nuevoNodoHijo)
-				return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x+1, y)
+		# Ir hacia abajo
+		try:
+			if tablero[x+1][y] != -1:
+				print(f'El nodo [{nodoPadre.name}] va hacia abajo')
+				debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x+1][y])
+				if debeAgregarHijo == False:
+					nuevoNodoHijo = Node(tablero[x+1][y], parent=nodoPadre)
+					pila.append(nuevoNodoHijo)
+					return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x+1, y)
 
-	except IndexError:
-		print("No se puede ir hacia abajo")
+		except IndexError:
+			print("No se puede ir hacia abajo")
 
-	# Ir hacia la izquierda
-	try:
-		if tablero[x][y-1] != -1 and y > 0:
-			print(f'El nodo [{nodoPadre.name}] va hacia la izquierda')
-			debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x][y-1])
-			if debeAgregarHijo == False:
-				nuevoNodoHijo = Node(tablero[x][y-1], parent=nodoPadre)
-				pila.append(nuevoNodoHijo)
-				return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x, y-1)
+		# Ir hacia la izquierda
+		try:
+			if tablero[x][y-1] != -1 and y > 0:
+				print(f'El nodo [{nodoPadre.name}] va hacia la izquierda')
+				debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x][y-1])
+				if debeAgregarHijo == False:
+					nuevoNodoHijo = Node(tablero[x][y-1], parent=nodoPadre)
+					pila.append(nuevoNodoHijo)
+					return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x, y-1)
 
-	except IndexError:
-		print("No se puede ir hacia la izquierda")
+		except IndexError:
+			print("No se puede ir hacia la izquierda")
 
 
 if __name__ == "__main__":
