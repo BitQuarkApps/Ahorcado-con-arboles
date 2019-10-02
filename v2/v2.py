@@ -1,9 +1,14 @@
 from anytree.exporter import DotExporter
-from anytree import Node, PreOrderIter
+from anytree import Node, PreOrderIter, RenderTree
 import pygraphviz as pvg
 import numpy as np
 import random
 import pprint
+
+import os, hashlib
+
+def uniqueID():
+    return hashlib.md5(os.urandom(32)).hexdigest()[:5]
 
 def indiceAleatorio(limite):
 	return random.randint(0,limite-1)
@@ -58,12 +63,13 @@ def buscarAlosAlrededores(pila, nodoPadre, tablero, x, y):
 		# Ir hacia arriba
 		try:
 			if tablero[x-1][y] != -1 and x > 0:
-				print(f'El nodo [{nodoPadre.name}] va hacia arriba')
+				# print(f'El nodo [{nodoPadre.name}] va hacia arriba')
 				debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x-1][y])
 				if debeAgregarHijo == False:
-					nuevoNodoHijo = Node(tablero[x-1][y], parent=nodoPadre)
+					id_ = uniqueID()
+					nuevoNodoHijo = Node(tablero[x-1][y], parent=nodoPadre, id=id_)
 					pila.append(nuevoNodoHijo)
-					return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x-1, y)
+					buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x-1, y)
 
 		except IndexError:
 			print("No puede ir hacia arriba")
@@ -71,12 +77,13 @@ def buscarAlosAlrededores(pila, nodoPadre, tablero, x, y):
 		# Ir hacia la derecha
 		try:
 			if tablero[x][y+1] != -1:
-				print(f'El nodo [{nodoPadre.name}] va hacia la derecha')
+				# print(f'El nodo [{nodoPadre.name}] va hacia la derecha')
 				debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x][y+1])
 				if debeAgregarHijo == False:
-					nuevoNodoHijo = Node(tablero[x][y+1], parent=nodoPadre)
+					id_ = uniqueID()
+					nuevoNodoHijo = Node(tablero[x][y+1], parent=nodoPadre, id=id_)
 					pila.append(nuevoNodoHijo)
-					return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x, y+1)
+					buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x, y+1)
 
 		except IndexError:
 			print("No se puede ir hacia la derecha")
@@ -84,12 +91,13 @@ def buscarAlosAlrededores(pila, nodoPadre, tablero, x, y):
 		# Ir hacia abajo
 		try:
 			if tablero[x+1][y] != -1:
-				print(f'El nodo [{nodoPadre.name}] va hacia abajo')
+				# print(f'El nodo [{nodoPadre.name}] va hacia abajo')
 				debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x+1][y])
 				if debeAgregarHijo == False:
-					nuevoNodoHijo = Node(tablero[x+1][y], parent=nodoPadre)
+					id_ = uniqueID()
+					nuevoNodoHijo = Node(tablero[x+1][y], parent=nodoPadre, id=id_)
 					pila.append(nuevoNodoHijo)
-					return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x+1, y)
+					buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x+1, y)
 
 		except IndexError:
 			print("No se puede ir hacia abajo")
@@ -97,28 +105,68 @@ def buscarAlosAlrededores(pila, nodoPadre, tablero, x, y):
 		# Ir hacia la izquierda
 		try:
 			if tablero[x][y-1] != -1 and y > 0:
-				print(f'El nodo [{nodoPadre.name}] va hacia la izquierda')
+				# print(f'El nodo [{nodoPadre.name}] va hacia la izquierda')
 				debeAgregarHijo = validarSiElValorLoTieneMiPapa(nodoPadre, tablero[x][y-1])
 				if debeAgregarHijo == False:
-					nuevoNodoHijo = Node(tablero[x][y-1], parent=nodoPadre)
+					id_ = uniqueID()
+					nuevoNodoHijo = Node(tablero[x][y-1], parent=nodoPadre, id=id_)
 					pila.append(nuevoNodoHijo)
-					return buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x, y-1)
+					buscarAlosAlrededores(pila, nuevoNodoHijo, tablero, x, y-1)
 
 		except IndexError:
 			print("No se puede ir hacia la izquierda")
 
+def verPorPrimeraVezMislimites(tablero, x, y):
+	resultX = []
+	resultY = []
+	# Ir hacia arriba
+	try:
+		if tablero[x-1][y] != -1 and x > 0:
+			resultX.append(x-1)
+			resultY.append(y)
+	except IndexError:
+		print("No puede ir hacia arriba")
+
+	# Ir hacia la derecha
+	try:
+		if tablero[x][y+1] != -1:
+			resultX.append(x)
+			resultY.append(y+1)
+	except IndexError:
+		print("No se puede ir hacia la derecha")
+	
+	# Ir hacia abajo
+	try:
+		if tablero[x+1][y] != -1:
+			resultX.append(x+1)
+			resultY.append(y)
+	except IndexError:
+		print("No se puede ir hacia abajo")
+
+	# Ir hacia la izquierda
+		try:
+			if tablero[x][y-1] != -1 and y > 0:
+				resultX.append(x)
+				resultY.append(y-1)
+		except IndexError:
+			print("No se puede ir hacia la izquierda")
+	
+	return resultX, resultY
+
+			
 
 if __name__ == "__main__":
 	tablero, xInicio, yInicio = construirTablero(5, 1)
 	if tablero[xInicio][yInicio] != 0:
 		raise Exception("Por azares del destino, el tablero no cuenta con una casilla de salida, que mala suerte...")
 
-	nodoRaiz = Node(tablero[xInicio][yInicio])
+	nodoRaiz = Node(tablero[xInicio][yInicio], id=uniqueID())
 	pilaDeNodos = []
 
 	mostrarTablero(tablero)
+	
 	buscarAlosAlrededores(pilaDeNodos, nodoRaiz, tablero, xInicio, yInicio)
-
+	
 	DotExporter(nodoRaiz).to_dotfile('arbol.dot')
 	# print('Exportando a una imagen ...')
 	#Generar imagen con el formato .dot
