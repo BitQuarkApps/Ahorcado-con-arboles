@@ -1,4 +1,4 @@
-from anytree.exporter import DotExporter
+from anytree.exporter import UniqueDotExporter
 from anytree import Node, PreOrderIter, RenderTree
 import pygraphviz as pvg
 import numpy as np
@@ -167,9 +167,9 @@ if __name__ == "__main__":
 	
 	buscarAlosAlrededores(pilaDeNodos, nodoRaiz, tablero, xInicio, yInicio)
 	
-	DotExporter(nodoRaiz).to_dotfile('arbol.dot')
-	# print('Exportando a una imagen ...')
-	#Generar imagen con el formato .dot
-	G=pvg.AGraph("arbol.dot")
-	G.layout(prog='dot')
-	G.draw('arbol.png')
+	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
+	# # print('Exportando a una imagen ...')
+	# #Generar imagen con el formato .dot
+	# G=pvg.AGraph("arbol.dot")
+	# G.layout(prog='dot')
+	# G.draw('arbol.png')
