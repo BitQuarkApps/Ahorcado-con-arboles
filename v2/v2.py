@@ -1,5 +1,6 @@
-from anytree.exporter import UniqueDotExporter
 from anytree import Node, PreOrderIter, RenderTree
+from anytree.exporter import UniqueDotExporter
+from prettytable import PrettyTable
 import pygraphviz as pvg
 import numpy as np
 import random
@@ -45,8 +46,8 @@ def construirTablero(cantidadFilas, obstaculos_):
 
 def mostrarTablero(tablero):
 	print("\n")
-	for row in tablero:
-		print(row)
+	copy = np.array(tablero).reshape(len(tablero), len(tablero[0]))
+	pprint.pprint(copy)
 	print("\n")
 
 def validarSiElValorLoTieneMiPapa(nodoHijo, valor):
