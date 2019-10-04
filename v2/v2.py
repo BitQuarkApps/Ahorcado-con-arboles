@@ -8,6 +8,7 @@ import pprint
 import os, hashlib
 from tkinter import *
 from tkinter import messagebox
+import cv2
 
 def uniqueID():
     return hashlib.md5(os.urandom(32)).hexdigest()[:5]
@@ -118,44 +119,18 @@ def buscarAlosAlrededores(pila, nodoPadre, tablero, x, y):
 		except IndexError:
 			print("No se puede ir hacia la izquierda")
 
-def verPorPrimeraVezMislimites(tablero, x, y):
-	resultX = []
-	resultY = []
-	# Ir hacia arriba
-	try:
-		if tablero[x-1][y] != -1 and x > 0:
-			resultX.append(x-1)
-			resultY.append(y)
-	except IndexError:
-		print("No puede ir hacia arriba")
+def showRecorridos(nodoPadre, tablero):
+	soluciones = []
 
-	# Ir hacia la derecha
-	try:
-		if tablero[x][y+1] != -1:
-			resultX.append(x)
-			resultY.append(y+1)
-	except IndexError:
-		print("No se puede ir hacia la derecha")
+	DFS = PreOrderIter(nodoPadre)
+	print("\nDFS:\n")
 	
-	# Ir hacia abajo
-	try:
-		if tablero[x+1][y] != -1:
-			resultX.append(x+1)
-			resultY.append(y)
-	except IndexError:
-		print("No se puede ir hacia abajo")
-
-	# Ir hacia la izquierda
-		try:
-			if tablero[x][y-1] != -1 and y > 0:
-				resultX.append(x)
-				resultY.append(y-1)
-		except IndexError:
-			print("No se puede ir hacia la izquierda")
+	for nodo in DFS:
+		if nodo.name == -100:
+			soluciones.append(nodo)
+	# pprint.pprint(soluciones)
+		
 	
-	return resultX, resultY
-
-
 def doAlgorithm(size, obstaculos):
 	tablero, xInicio, yInicio = construirTablero(size, obstaculos)
 	if tablero[xInicio][yInicio] != 0:
@@ -170,10 +145,18 @@ def doAlgorithm(size, obstaculos):
 	buscarAlosAlrededores(pilaDeNodos, nodoRaiz, tablero, xInicio, yInicio)
 	
 	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
+
+	showRecorridos(nodoRaiz, tablero)
+	
+	imagenResultante = cv2.imread("arbol_unique.png", cv2.IMREAD_COLOR)
+	cv2.imshow('Arbol resultante', imagenResultante)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
 			
 def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 	txtSize.config(state=DISABLED)
 	txtObst.config(state=DISABLED)
+	messagebox.showinfo(message="Ejecutando algoritmo", title="Espere por favor....")
 	doAlgorithm(size, obstaculos)
 	txtSize.config(state=NORMAL)
 	txtObst.config(state=NORMAL)
@@ -181,7 +164,6 @@ def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 
 
 if __name__ == "__main__":
-
 	window = Tk()
 	window.title("DSI - DFS Obstaculos")
 	window.geometry('350x200')	
