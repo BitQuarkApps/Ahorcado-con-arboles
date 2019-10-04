@@ -9,6 +9,7 @@ import os, hashlib
 from tkinter import *
 from tkinter import messagebox
 import cv2
+import pygame
 
 def uniqueID():
     return hashlib.md5(os.urandom(32)).hexdigest()[:5]
@@ -48,8 +49,8 @@ def construirTablero(cantidadFilas, obstaculos_):
 
 def mostrarTablero(tablero):
 	print("\n")
-	copy = np.array(tablero).reshape(len(tablero), len(tablero[0]))
-	pprint.pprint(copy)
+	for row in tablero:
+		print(row)
 	print("\n")
 
 def validarSiElValorLoTieneMiPapa(nodoHijo, valor):
@@ -128,7 +129,57 @@ def showRecorridos(nodoPadre, tablero):
 	for nodo in DFS:
 		if nodo.name == -100:
 			soluciones.append(nodo)
-	# pprint.pprint(soluciones)
+	print("\n\n=== SOLUCIONES === \n\n")
+	print(soluciones)
+	# NEGRO = (0, 0, 0)
+	# BLANCO = (255, 255, 255)
+	# VERDE = ( 0, 255, 0)
+	# ROJO = (255, 0, 0)
+	# AZUL = (12, 74, 173)
+	# # Establecemos el LARGO y ALTO de cada celda de la retícula.
+	# LARGO  = 20
+	# ALTO = 20
+	# # Establecemos el margen entre las celdas.
+	# MARGEN = 5
+
+	# pygame.init()
+	# # Establecemos el LARGO y ALTO de la pantalla
+	# DIMENSION_VENTANA = [255, 255]
+	# pantalla = pygame.display.set_mode(DIMENSION_VENTANA)
+	# # Establecemos el título de la pantalla.
+	# pygame.display.set_caption("Recorrido")
+	# # Iteramos hasta que el usuario pulse el botón de salir.
+	# hecho = False
+	
+	# # Lo usamos para establecer cuán rápido de refresca la pantalla.
+	# reloj = pygame.time.Clock()
+	# while not hecho:
+	# 	for evento in pygame.event.get(): 
+	# 		if evento.type == pygame.QUIT:
+	# 			hecho = True
+		
+	# 	pantalla.fill(NEGRO)
+	# 	for fila in range(len(tablero)):
+	# 		for columna in range(len(tablero[0])):
+	# 			color = BLANCO
+	# 			if tablero[fila][columna] == 0:
+	# 				color = ROJO
+	# 			elif tablero[fila][columna] == -100:
+	# 				color = AZUL
+				
+	# 			print(color)
+	# 			pygame.draw.rect(pantalla,
+    #                          color,
+    #                          [(MARGEN+LARGO) * columna + MARGEN,
+    #                           (MARGEN+ALTO) * fila + MARGEN,
+    #                           LARGO,
+    #                           ALTO])
+	# 	# Limitamos a 60 fotogramas por segundo.
+	# 	reloj.tick(60)
+	
+	# 	# Avanzamos y actualizamos la pantalla con lo que hemos dibujado.
+	# 	pygame.display.flip()
+
 		
 	
 def doAlgorithm(size, obstaculos):
@@ -152,6 +203,7 @@ def doAlgorithm(size, obstaculos):
 	cv2.imshow('Arbol resultante', imagenResultante)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
+	pygame.quit()
 			
 def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 	txtSize.config(state=DISABLED)
