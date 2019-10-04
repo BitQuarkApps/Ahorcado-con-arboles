@@ -5,8 +5,9 @@ import pygraphviz as pvg
 import numpy as np
 import random
 import pprint
-
 import os, hashlib
+from tkinter import *
+from tkinter import messagebox
 
 def uniqueID():
     return hashlib.md5(os.urandom(32)).hexdigest()[:5]
@@ -16,8 +17,8 @@ def indiceAleatorio(limite):
 
 def construirTablero(cantidadFilas, obstaculos_):
 	tablero = []
-	cantidadFilas = 3
-	obstaculos_ = 1
+	cantidadFilas = cantidadFilas
+	obstaculos_ = obstaculos_
 
 	tablero = []
 	contador = 0
@@ -154,11 +155,11 @@ def verPorPrimeraVezMislimites(tablero, x, y):
 	
 	return resultX, resultY
 
-			
 
-if __name__ == "__main__":
-	tablero, xInicio, yInicio = construirTablero(5, 1)
+def doAlgorithm(size, obstaculos):
+	tablero, xInicio, yInicio = construirTablero(size, obstaculos)
 	if tablero[xInicio][yInicio] != 0:
+		messagebox.showerror(message="Por azares del destino, el tablero no cuenta con una casilla de salida, que mala suerte...", title="Upss")
 		raise Exception("Por azares del destino, el tablero no cuenta con una casilla de salida, que mala suerte...")
 
 	nodoRaiz = Node(tablero[xInicio][yInicio], id=uniqueID())
@@ -169,8 +170,32 @@ if __name__ == "__main__":
 	buscarAlosAlrededores(pilaDeNodos, nodoRaiz, tablero, xInicio, yInicio)
 	
 	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
-	# # print('Exportando a una imagen ...')
-	# #Generar imagen con el formato .dot
-	# G=pvg.AGraph("arbol.dot")
-	# G.layout(prog='dot')
-	# G.draw('arbol.png')
+			
+def evaluarEntradas(size, obstaculos, txtSize, txtObst):
+	txtSize.config(state=DISABLED)
+	txtObst.config(state=DISABLED)
+	doAlgorithm(size, obstaculos)
+	txtSize.config(state=NORMAL)
+	txtObst.config(state=NORMAL)
+	messagebox.showinfo(message="Algoritmo terminado", title="Información")
+
+
+if __name__ == "__main__":
+
+	window = Tk()
+	window.title("DSI - DFS Obstaculos")
+	window.geometry('350x200')	
+	# Etiqueta de Tamaño de cuadricula
+	lblCuadSize = Label(window, text="Ingresa el tamaño de la cuadrícula: ", font=("Arial Bold", 15))
+	lblCuadSize.grid(column=0, row=0)
+	txtCuadSize = Entry(window, width=10)
+	txtCuadSize.grid(column=1, row=0)
+
+	lblObstAmmount = Label(window, text="Número de obstáculos: ", font=("Arial Bold", 15))
+	lblObstAmmount.grid(column=0, row=1)
+	txtObstAmmount = Entry(window, width=10)
+	txtObstAmmount.grid(column=1, row=1)
+
+	btnStart = Button(window, text="Let's go!", fg="black", command=lambda: evaluarEntradas(int(txtCuadSize.get()), int(txtObstAmmount.get()), txtCuadSize, txtObstAmmount))
+	btnStart.grid(column=0, row=2)
+	window.mainloop()
