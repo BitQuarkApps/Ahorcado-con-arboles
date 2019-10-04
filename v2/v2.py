@@ -1,15 +1,12 @@
 from anytree import Node, PreOrderIter, RenderTree
 from anytree.exporter import UniqueDotExporter
-from prettytable import PrettyTable
 import pygraphviz as pvg
-import numpy as np
 import random
-import pprint
 import os, hashlib
 from tkinter import *
 from tkinter import messagebox
 import cv2
-import pygame
+# import pygame
 
 def uniqueID():
     return hashlib.md5(os.urandom(32)).hexdigest()[:5]
