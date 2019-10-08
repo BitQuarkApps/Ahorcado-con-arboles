@@ -188,19 +188,16 @@ def getCoords(tablero, valorBuscado):
 
 def doAlgorithm(size, obstaculos):
 	tablero, xInicio, yInicio = construirTablero(size, obstaculos)
-	expansionMaxima = 0
-	for row in tablero:
-			for col in row:
-				if col != -1:
-					expansionMaxima += 1
-	expansionMaxima *= 2
+	expansionMaxima = ((len(tablero) * len(tablero)) - obstaculos) * 2
+
 	print(f'Numero de estados => {expansionMaxima}')
 	if tablero[xInicio][yInicio] != 0:
 		messagebox.showerror(message="Por azares del destino, el tablero no cuenta con una casilla de salida, que mala suerte...", title="Upss")
 		raise Exception("Por azares del destino, el tablero no cuenta con una casilla de salida, que mala suerte...")
 
 	nodoRaiz = Node(tablero[xInicio][yInicio], id=uniqueID())
-	nodoCursor = None
+	copiaRaiz = nodoRaiz
+	nodoCursor = nodoRaiz
 	pilaDeNodos = []
 
 	mostrarTablero(tablero)
@@ -209,8 +206,8 @@ def doAlgorithm(size, obstaculos):
 	recorridoProfundidad = PreOrderIter(nodoRaiz)
 	# print(RenderTree(recorridoProfundidad))
 	iteracion = 1
+
 	for ultimoNodoDFS in recorridoProfundidad:
-		print(nodoRaiz)
 		if nodoRaiz.height > expansionMaxima:
 			break
 		if nodoRaiz.depth > expansionMaxima:
@@ -227,15 +224,14 @@ def doAlgorithm(size, obstaculos):
 		try:
 			if tablero[x_-1][y_] != -1 and x_ > 0:
 				id_ = uniqueID()
-				nodoCursor = Node(tablero[x_-1][y_], parent=nodoCursor, id=id_)
+				nodoCursor = Node(tablero[x_-1][y_], parent=nodoRaiz, id=id_)
 		except IndexError:
 			print("No puede ir hacia arriba")
 
 		# Ir hacia la derecha
 		try:
-			if tablero[x_][y_+1] != -1:
 				id_ = uniqueID()
-				nodoCursor = Node(tablero[x_][y_+1], parent=nodoCursor, id=id_)
+				nodoCursor = Node(tablero[x_][y_+1], parent=nodoRaiz, id=id_)
 		except IndexError:
 			print("No se puede ir hacia la derecha")
 
@@ -243,7 +239,7 @@ def doAlgorithm(size, obstaculos):
 		try:
 			if tablero[x_+1][y_] != -1 and x_ > 0:
 				id_ = uniqueID()
-				nodoCursor = Node(tablero[x_+1][y_], parent=nodoCursor, id=id_)
+				nodoCursor = Node(tablero[x_+1][y_], parent=nodoRaiz, id=id_)
 		except IndexError:
 			print("No puede ir hacia abajo")
 
@@ -251,13 +247,14 @@ def doAlgorithm(size, obstaculos):
 		try:
 			if tablero[x_][y_-1] != -1:
 				id_ = uniqueID()
-				nodoCursor = Node(tablero[x_][y_-1], parent=nodoCursor, id=id_)
+				nodoCursor = Node(tablero[x_][y_-1], parent=nodoRaiz, id=id_)
 		except IndexError:
 			print("No se puede ir hacia la derecha")
 		iteracion +=1
+		nodoRaiz = nodoCursor
 
 
-	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
+	UniqueDotExporter(copiaRaiz).to_picture("arbol_unique.png")
 
 	# showRecorridos(nodoRaiz, tablero)
 	imagenResultante = cv2.imread("arbol_unique.png", cv2.IMREAD_GRAYSCALE)
