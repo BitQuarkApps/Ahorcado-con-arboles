@@ -32,7 +32,7 @@ def construirTablero(cantidadFilas, obstaculos_):
 	for i in range(obstaculos_):
 		x = indiceAleatorio(len(tablero))
 		y = indiceAleatorio(len(tablero[0]))
-		tablero[x][y] = -1  # Obstáculo
+		tablero[x][y] = -1  # Obstaculo
 
 	xInicio = indiceAleatorio(len(tablero))
 	yInicio = indiceAleatorio(len(tablero[0]))
@@ -118,55 +118,41 @@ def buscarAlosAlrededores(pila, nodoPadre, tablero, x, y, profundidadMaxima, rai
 		except IndexError:
 			print("No se puede ir hacia la izquierda")
 
-def arriba(nodoPadre, tablero, x, y):
-	print(f'Nodo [ {nodoPadre.name} ] hacia arriba')
+def arriba(tablero, x, y):
 	# Ir hacia arriba
 	try:
-		if tablero[x][y] != -1 and x > 0:
-			id_ = uniqueID()
-			# nuevoNodoHijo = Node(tablero[x][y], parent=nodoPadre, id=id_)
-			nuevoNodoHijo = Node(tablero[x][y], parent=nodoPadre, id=id_)
-			nodoPadre.children = [nuevoNodoHijo]
-			return nodoPadre
+		if tablero[x-1][y] != -1 and x > 0:
+			return tablero[x-1][y]
 	except IndexError:
 		print("No puede ir hacia arriba")
-	return nodoPadre
+	return None
 
-def derecha(nodoPadre, tablero, x, y):
-	print(f'Nodo [ {nodoPadre.name} ] hacia derecha')
+def derecha(tablero, x, y):
 	# Ir hacia la derecha
 	try:
-		if tablero[x][y] != -1:
-			id_ = uniqueID()
-			nuevoNodoHijo = Node(tablero[x][y], parent=nodoPadre, id=id_)
-			nodoPadre.children = [nuevoNodoHijo]
+		if tablero[x][y+1] != -1:
+			return tablero[x][y+1]
 	except IndexError:
 		print("No se puede ir hacia la derecha")
-	return nodoPadre
+	return None
 
-def abajo(nodoPadre, tablero, x, y):
-	print(f'Nodo [ {nodoPadre.name} ] hacia abajo')
+def abajo(tablero, x, y):
 	# Ir hacia abajo
 	try:
-		if tablero[x][y] != -1:
-			id_ = uniqueID()
-			nuevoNodoHijo = Node(tablero[x][y], parent=nodoPadre, id=id_)
-			nodoPadre.children = [nuevoNodoHijo]
+		if tablero[x+1][y] != -1:
+			return tablero[x+1][y]
 	except IndexError:
 		print("No se puede ir hacia abajo")
-	return nodoPadre
+	return None
 
-def izquierda(nodoPadre, tablero, x, y):
-	print(f'Nodo [ {nodoPadre.name} ] hacia izquierda')
+def izquierda(tablero, x, y):
 	# Ir hacia la izquierda
 	try:
-		if tablero[x][y] != -1:
-			id_ = uniqueID()
-			nuevoNodoHijo = Node(tablero[x][y], parent=nodoPadre, id=id_)
-			nodoPadre.children = [nuevoNodoHijo]
+		if tablero[x][y-1] != -1 and y > 0:
+			return tablero[x][y-1]
 	except IndexError:
 		print("No se puede ir hacia la izquierda")
-	return nodoPadre
+	return None
 
 def showRecorridos(nodoPadre, tablero):
 	soluciones = []
@@ -196,76 +182,81 @@ def doAlgorithm(size, obstaculos):
 		raise Exception("Por azares del destino, el tablero no cuenta con una casilla de salida, que mala suerte...")
 
 	nodoRaiz = Node(tablero[xInicio][yInicio], id=uniqueID())
-	copiaRaiz = nodoRaiz
-	nodoCursor = nodoRaiz
-	pilaDeNodos = []
+	nodoCursor = None
+
+	nodosVisitados = []
 
 	mostrarTablero(tablero)
+
+	valorArriba = arriba(tablero, xInicio, yInicio)
+	if(valorArriba != None):
+		uid = uniqueID()
+		nodoCursor = Node(valorArriba, parent=nodoRaiz, id=uid)
 	
-	# buscarAlosAlrededores(pilaDeNodos, nodoRaiz, tablero, xInicio, yInicio, expansionMaxima, nodoRaiz)
-	recorridoProfundidad = PreOrderIter(nodoRaiz)
-	# print(RenderTree(recorridoProfundidad))
-	iteracion = 1
+	valorDerecha = derecha(tablero, xInicio, yInicio)
+	if(valorDerecha != None):
+		uid = uniqueID()
+		nodoCursor = Node(valorDerecha, parent=nodoRaiz, id=uid)
+	
+	valorAbajo = abajo(tablero, xInicio, yInicio)
+	if(valorAbajo != None):
+		uid = uniqueID()
+		nodoCursor = Node(valorAbajo, parent=nodoRaiz, id=uid)
+	
+	valorIzquierda = izquierda(tablero, xInicio, yInicio)
+	if(valorIzquierda != None):
+		uid = uniqueID()
+		nodoCursor = Node(valorIzquierda, parent=nodoRaiz, id=uid)
 
-	for ultimoNodoDFS in recorridoProfundidad:
-		if nodoRaiz.height > expansionMaxima:
+	nodoHijoEvaluando = nodoRaiz.children[0]
+	while nodoHijoEvaluando.depth < expansionMaxima:
+		if nodoHijoEvaluando.name == -100: # Solucion
 			break
-		if nodoRaiz.depth > expansionMaxima:
-			break
-		print(f"Iteracion {iteracion}")
-		nodoCursor = ultimoNodoDFS
-
-		coords = getCoords(tablero, nodoCursor.name)
-		x_ = int(coords[0])
-		y_ = int(coords[1])
-
-
-		# Ir hacia arriba
-		try:
-			if tablero[x_-1][y_] != -1 and x_ > 0:
-				id_ = uniqueID()
-				nodoCursor = Node(tablero[x_-1][y_], parent=nodoRaiz, id=id_)
-		except IndexError:
-			print("No puede ir hacia arriba")
-
-		# Ir hacia la derecha
-		try:
-				id_ = uniqueID()
-				nodoCursor = Node(tablero[x_][y_+1], parent=nodoRaiz, id=id_)
-		except IndexError:
-			print("No se puede ir hacia la derecha")
-
-		# Ir hacia abajo
-		try:
-			if tablero[x_+1][y_] != -1 and x_ > 0:
-				id_ = uniqueID()
-				nodoCursor = Node(tablero[x_+1][y_], parent=nodoRaiz, id=id_)
-		except IndexError:
-			print("No puede ir hacia abajo")
-
-		# Ir hacia la izquierda
-		try:
-			if tablero[x_][y_-1] != -1:
-				id_ = uniqueID()
-				nodoCursor = Node(tablero[x_][y_-1], parent=nodoRaiz, id=id_)
-		except IndexError:
-			print("No se puede ir hacia la derecha")
-		iteracion +=1
-		nodoRaiz = nodoCursor
+		nodosVisitados.append(nodoHijoEvaluando.name)
+		coordenadasHijoEvaluando = getCoords(tablero, nodoHijoEvaluando.name)
+		_x = int(coordenadasHijoEvaluando[0])
+		_y = int(coordenadasHijoEvaluando[1])
+		valorArriba = arriba(tablero, _x, _y)
+		if(valorArriba != None):
+			uid = uniqueID()
+			hijo = Node(valorArriba, parent=nodoHijoEvaluando, id=uid)
+		
+		valorDerecha = derecha(tablero, _x, _y)
+		if(valorDerecha != None):
+			uid = uniqueID()
+			nodoCursor = Node(valorDerecha, parent=nodoHijoEvaluando, id=uid)
+		
+		valorAbajo = abajo(tablero, _x, _y)
+		if(valorAbajo != None):
+			uid = uniqueID()
+			nodoCursor = Node(valorAbajo, parent=nodoHijoEvaluando, id=uid)
+		
+		valorIzquierda = izquierda(tablero, _x, _y)
+		if(valorIzquierda != None):
+			uid = uniqueID()
+			nodoCursor = Node(valorIzquierda, parent=nodoHijoEvaluando, id=uid)
+		break
+		
 
 
-	UniqueDotExporter(copiaRaiz).to_picture("arbol_unique.png")
+
+
+
+
+	print(f'Nodo raiz => {nodoRaiz}')
+	print(f'Hijos del Nodo raiz => {nodoRaiz.children}')
+	print(f'Hijo izquierda del Nodo raiz => {nodoRaiz.children[0]}')
+	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
 
 	# showRecorridos(nodoRaiz, tablero)
 	imagenResultante = cv2.imread("arbol_unique.png", cv2.IMREAD_GRAYSCALE)
 	cv2.imshow('Arbol resultante', imagenResultante)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
-			
+
 def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 	txtSize.config(state=DISABLED)
 	txtObst.config(state=DISABLED)
-	messagebox.showinfo(message="Ejecutando algoritmo", title="Espere por favor....")
 	doAlgorithm(size, obstaculos) 
 	txtSize.config(state=NORMAL)
 	txtObst.config(state=NORMAL)
