@@ -125,7 +125,7 @@ def arriba(tablero, x, y):
 		if tablero[x-1][y] != -1 and x > 0:
 			return tablero[x-1][y]
 	except IndexError:
-		print("No puede ir hacia arriba")
+		pass
 	return None
 
 def derecha(tablero, x, y):
@@ -134,7 +134,7 @@ def derecha(tablero, x, y):
 		if tablero[x][y+1] != -1:
 			return tablero[x][y+1]
 	except IndexError:
-		print("No se puede ir hacia la derecha")
+		pass
 	return None
 
 def abajo(tablero, x, y):
@@ -143,7 +143,7 @@ def abajo(tablero, x, y):
 		if tablero[x+1][y] != -1:
 			return tablero[x+1][y]
 	except IndexError:
-		print("No se puede ir hacia abajo")
+		pass
 	return None
 
 def izquierda(tablero, x, y):
@@ -152,7 +152,7 @@ def izquierda(tablero, x, y):
 		if tablero[x][y-1] != -1 and y > 0:
 			return tablero[x][y-1]
 	except IndexError:
-		print("No se puede ir hacia la izquierda")
+		pass
 	return None
 
 def showRecorridos(nodoPadre, tablero):
@@ -217,7 +217,7 @@ def doAlgorithm(size, obstaculos):
 
 	nodosVisitados.append(nodoRaiz.name)
 	nodoHijoEvaluando = nodoRaiz.children[0]
-	while nodoHijoEvaluando.depth < expansionMaxima and nodoHijoEvaluando != None:
+	while nodoHijoEvaluando != None:
 		yaPasePorAqui = existeEnLaPila(nodosVisitados, nodoHijoEvaluando.name)
 		if yaPasePorAqui == False:
 			nodosVisitados.append(nodoHijoEvaluando.name)
@@ -246,17 +246,15 @@ def doAlgorithm(size, obstaculos):
 				uid = uniqueID()
 				hijo = Node(valorIzquierda, parent=nodoHijoEvaluando, id=uid)
 			
-		print(f'Hola, soy el nodo {nodoHijoEvaluando.name} y me encuentro a una profundidad de {nodoHijoEvaluando.depth}, altura {nodoHijoEvaluando.height}')
-		print(len(nodoHijoEvaluando.children))
-
-		if len(nodoHijoEvaluando.children) == 0:
+			# if len(nodoHijoEvaluando.children) == 0:
 			# No hay hijos y por consiguiente tengo que agarrar al hermano :v
-			nodoHijoEvaluando = nodoHijoEvaluando.parent
-			nodoHijoEvaluando = rightsibling(nodoHijoEvaluando)
-		else:
 			nodoHijoEvaluando = nodoHijoEvaluando.children[0]
+		else:
+			try:
+				nodoHijoEvaluando = rightsibling(nodoHijoEvaluando)
+			except Exception:
+				nodoHijoEvaluando = rightsibling(nodoHijoEvaluando.parent)
 	
-	print(nodosVisitados)
 	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
 
 	# showRecorridos(nodoRaiz, tablero)
@@ -292,6 +290,7 @@ if __name__ == "__main__":
 	txtObstAmmount.config(state=NORMAL)
 	
 
-	btnStart = Button(window, text="Let's go!", fg="black", command=lambda: evaluarEntradas(int(txtCuadSize.get()), int(txtObstAmmount.get()), txtCuadSize, txtObstAmmount))
+	# btnStart = Button(window, text="Let's go!", fg="black", command=lambda: evaluarEntradas(int(txtCuadSize.get()), int(txtObstAmmount.get()), txtCuadSize, txtObstAmmount))
+	btnStart = Button(window, text="Let's go!", fg="black", command=lambda: evaluarEntradas(5, 1, txtCuadSize, txtObstAmmount))
 	btnStart.grid(column=0, row=2)
 	window.mainloop()
