@@ -1,5 +1,6 @@
 from anytree import Node, PreOrderIter, RenderTree
 from anytree.exporter import UniqueDotExporter
+from anytree.util import rightsibling
 import numpy as np
 import pygraphviz as pvg
 import random
@@ -171,6 +172,12 @@ def getCoords(tablero, valorBuscado):
 	tmp = np.array(tablero)
 	return np.where(tmp==valorBuscado, )
 
+def existeEnLaPila(pila, valor):
+	result = False
+	for v in pila:
+		if v == valor:
+			result = True
+	return result
 
 def doAlgorithm(size, obstaculos):
 	tablero, xInicio, yInicio = construirTablero(size, obstaculos)
@@ -208,44 +215,48 @@ def doAlgorithm(size, obstaculos):
 		uid = uniqueID()
 		nodoCursor = Node(valorIzquierda, parent=nodoRaiz, id=uid)
 
+	nodosVisitados.append(nodoRaiz.name)
 	nodoHijoEvaluando = nodoRaiz.children[0]
-	while nodoHijoEvaluando.depth < expansionMaxima:
-		if nodoHijoEvaluando.name == -100: # Solucion
-			break
-		nodosVisitados.append(nodoHijoEvaluando.name)
-		coordenadasHijoEvaluando = getCoords(tablero, nodoHijoEvaluando.name)
-		_x = int(coordenadasHijoEvaluando[0])
-		_y = int(coordenadasHijoEvaluando[1])
-		valorArriba = arriba(tablero, _x, _y)
-		if(valorArriba != None):
-			uid = uniqueID()
-			hijo = Node(valorArriba, parent=nodoHijoEvaluando, id=uid)
-		
-		valorDerecha = derecha(tablero, _x, _y)
-		if(valorDerecha != None):
-			uid = uniqueID()
-			nodoCursor = Node(valorDerecha, parent=nodoHijoEvaluando, id=uid)
-		
-		valorAbajo = abajo(tablero, _x, _y)
-		if(valorAbajo != None):
-			uid = uniqueID()
-			nodoCursor = Node(valorAbajo, parent=nodoHijoEvaluando, id=uid)
-		
-		valorIzquierda = izquierda(tablero, _x, _y)
-		if(valorIzquierda != None):
-			uid = uniqueID()
-			nodoCursor = Node(valorIzquierda, parent=nodoHijoEvaluando, id=uid)
-		break
-		
+	while nodoHijoEvaluando.depth < expansionMaxima and nodoHijoEvaluando != None:
+		yaPasePorAqui = existeEnLaPila(nodosVisitados, nodoHijoEvaluando.name)
+		if yaPasePorAqui == False:
+			nodosVisitados.append(nodoHijoEvaluando.name)
+			if nodoHijoEvaluando.name == -100: # Solucion
+				break
+			coordenadasHijoEvaluando = getCoords(tablero, nodoHijoEvaluando.name)
+			_x = int(coordenadasHijoEvaluando[0])
+			_y = int(coordenadasHijoEvaluando[1])
+			valorArriba = arriba(tablero, _x, _y)
+			if(valorArriba != None):
+				uid = uniqueID()
+				hijo = Node(valorArriba, parent=nodoHijoEvaluando, id=uid)
+			
+			valorDerecha = derecha(tablero, _x, _y)
+			if(valorDerecha != None):
+				uid = uniqueID()
+				hijo = Node(valorDerecha, parent=nodoHijoEvaluando, id=uid)
+			
+			valorAbajo = abajo(tablero, _x, _y)
+			if(valorAbajo != None):
+				uid = uniqueID()
+				hijo = Node(valorAbajo, parent=nodoHijoEvaluando, id=uid)
+			
+			valorIzquierda = izquierda(tablero, _x, _y)
+			if(valorIzquierda != None):
+				uid = uniqueID()
+				hijo = Node(valorIzquierda, parent=nodoHijoEvaluando, id=uid)
+			
+		print(f'Hola, soy el nodo {nodoHijoEvaluando.name} y me encuentro a una profundidad de {nodoHijoEvaluando.depth}, altura {nodoHijoEvaluando.height}')
+		print(len(nodoHijoEvaluando.children))
 
-
-
-
-
-
-	print(f'Nodo raiz => {nodoRaiz}')
-	print(f'Hijos del Nodo raiz => {nodoRaiz.children}')
-	print(f'Hijo izquierda del Nodo raiz => {nodoRaiz.children[0]}')
+		if len(nodoHijoEvaluando.children) == 0:
+			# No hay hijos y por consiguiente tengo que agarrar al hermano :v
+			nodoHijoEvaluando = nodoHijoEvaluando.parent
+			nodoHijoEvaluando = rightsibling(nodoHijoEvaluando)
+		else:
+			nodoHijoEvaluando = nodoHijoEvaluando.children[0]
+	
+	print(nodosVisitados)
 	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
 
 	# showRecorridos(nodoRaiz, tablero)
