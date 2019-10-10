@@ -192,7 +192,9 @@ def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 	nodoRaiz = None
 	while(True):
 		nodoRaiz = doAlgorithm(size, obstaculos)
-		if(showRecorridos(nodoRaiz).find("-100") == -1):
+		# if(showRecorridos(nodoRaiz).find("-100") == -1):
+		# 	break
+		if(showRecorridos(nodoRaiz).find("-100") > 0):
 			break
 	
 	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
