@@ -200,8 +200,10 @@ def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
 	showRecorridos(nodoRaiz)
 	# showRecorridos(nodoRaiz, tablero)
+	cv2.namedWindow("Arbol resultante", cv2.WINDOW_NORMAL)
 	imagenResultante = cv2.imread("arbol_unique.png", cv2.IMREAD_GRAYSCALE)
-	cv2.imshow('Arbol resultante', imagenResultante)
+	ventanaImagenResizable = cv2.resize(imagenResultante, (800, 600))
+	cv2.imshow('Arbol resultante', ventanaImagenResizable)
 	cv2.waitKey()
 	cv2.destroyAllWindows()
 
@@ -213,7 +215,8 @@ def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 if __name__ == "__main__":
 	window = Tk()
 	window.title("DSI - DFS Obstaculos")
-	window.geometry('350x200')	
+	# window.geometry('350x200')
+	window.resizable(False, False)
 	# Etiqueta de Tamaño de cuadricula
 	lblCuadSize = Label(window, text="Ingresa el tamaño de la cuadrícula: ", font=("Arial Bold", 15))
 	lblCuadSize.grid(column=0, row=0)
@@ -228,7 +231,7 @@ if __name__ == "__main__":
 	txtObstAmmount.config(state=NORMAL)
 	
 
-	# btnStart = Button(window, text="Let's go!", fg="black", command=lambda: evaluarEntradas(int(txtCuadSize.get()), int(txtObstAmmount.get()), txtCuadSize, txtObstAmmount))
-	btnStart = Button(window, text="Let's go!", fg="black", command=lambda: evaluarEntradas(3, 1, txtCuadSize, txtObstAmmount))
+	btnStart = Button(window, text="Ejecutar algoritmo", fg="black", command=lambda: evaluarEntradas(int(txtCuadSize.get()), int(txtObstAmmount.get()), txtCuadSize, txtObstAmmount))
+	# btnStart = Button(window, text="Let's go!", fg="black", command=lambda: evaluarEntradas(3, 1, txtCuadSize, txtObstAmmount))
 	btnStart.grid(column=0, row=2)
 	window.mainloop()
