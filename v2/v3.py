@@ -149,12 +149,57 @@ def doAlgorithm(size, obstaculos):
 
 	nodosVisitados.append(nodoRaiz.name)
 	nodoHijoEvaluando = nodoRaiz.children[0]
-	while nodoHijoEvaluando != None:
-		yaPasePorAqui = existeEnLaPila(nodosVisitados, nodoHijoEvaluando.name)
-		if yaPasePorAqui == False:
-			nodosVisitados.append(nodoHijoEvaluando.name)
-			if nodoHijoEvaluando.name == -100: # Solucion
-				break
+	# while nodoHijoEvaluando != None:
+	# 	yaPasePorAqui = existeEnLaPila(nodosVisitados, nodoHijoEvaluando.name)
+	# 	if yaPasePorAqui == False:
+	# 		nodosVisitados.append(nodoHijoEvaluando.name)
+	# 		if nodoHijoEvaluando.name == -100: # Solucion
+	# 			break
+	# 		coordenadasHijoEvaluando = getCoords(tablero, nodoHijoEvaluando.name)
+	# 		_x = int(coordenadasHijoEvaluando[0])
+	# 		_y = int(coordenadasHijoEvaluando[1])
+	# 		valorArriba = arriba(tablero, _x, _y)
+	# 		if(valorArriba != None):
+	# 			uid = uniqueID()
+	# 			hijo = Node(valorArriba, parent=nodoHijoEvaluando, id=uid)
+			
+	# 		valorDerecha = derecha(tablero, _x, _y)
+	# 		if(valorDerecha != None):
+	# 			uid = uniqueID()
+	# 			hijo = Node(valorDerecha, parent=nodoHijoEvaluando, id=uid)
+			
+	# 		valorAbajo = abajo(tablero, _x, _y)
+	# 		if(valorAbajo != None):
+	# 			uid = uniqueID()
+	# 			hijo = Node(valorAbajo, parent=nodoHijoEvaluando, id=uid)
+			
+	# 		valorIzquierda = izquierda(tablero, _x, _y)
+	# 		if(valorIzquierda != None):
+	# 			uid = uniqueID()
+	# 			hijo = Node(valorIzquierda, parent=nodoHijoEvaluando, id=uid)
+	# 		nodoHijoEvaluando = nodoHijoEvaluando.children[0]
+	# 	else:
+	# 		try:
+	# 			nodoHijoEvaluando = rightsibling(nodoHijoEvaluando)
+	# 		except Exception:
+	# 			nodoHijoEvaluando = rightsibling(nodoHijoEvaluando.parent)
+		
+
+	# Implementación con un nivel de profundidad máximo
+	while nodoHijoEvaluando != None: # Iteramos a lo bestia :v
+		# yaPasePorAqui = existeEnLaPila(nodosVisitados, nodoHijoEvaluando.name)
+
+		profundidad = nodoHijoEvaluando.depth
+		if nodoHijoEvaluando.name == -100:
+			print("Acabo de encontrar la salida :D")
+			break
+		elif profundidad > expansionMaxima:
+			# Pasar al siguiente nodo segun profundidad maxmma
+			try:
+				nodoHijoEvaluando = rightsibling(nodoHijoEvaluando)
+			except Exception:
+				nodoHijoEvaluando = rightsibling(nodoHijoEvaluando.parent)
+		else:
 			coordenadasHijoEvaluando = getCoords(tablero, nodoHijoEvaluando.name)
 			_x = int(coordenadasHijoEvaluando[0])
 			_y = int(coordenadasHijoEvaluando[1])
@@ -178,11 +223,13 @@ def doAlgorithm(size, obstaculos):
 				uid = uniqueID()
 				hijo = Node(valorIzquierda, parent=nodoHijoEvaluando, id=uid)
 			nodoHijoEvaluando = nodoHijoEvaluando.children[0]
-		else:
-			try:
-				nodoHijoEvaluando = rightsibling(nodoHijoEvaluando)
-			except Exception:
-				nodoHijoEvaluando = rightsibling(nodoHijoEvaluando.parent)
+		# else:
+		# 	try:
+		# 		nodoHijoEvaluando = rightsibling(nodoHijoEvaluando)
+		# 	except Exception:
+		# 		nodoHijoEvaluando = rightsibling(nodoHijoEvaluando.parent)
+
+
 	return nodoRaiz
 
 def evaluarEntradas(size, obstaculos, txtSize, txtObst):
@@ -190,6 +237,7 @@ def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 	txtObst.config(state=DISABLED)
 
 	nodoRaiz = None
+	nodoRaiz = doAlgorithm(size, obstaculos)
 	while(True):
 		nodoRaiz = doAlgorithm(size, obstaculos)
 		# if(showRecorridos(nodoRaiz).find("-100") == -1):
@@ -198,7 +246,7 @@ def evaluarEntradas(size, obstaculos, txtSize, txtObst):
 			break
 	
 	UniqueDotExporter(nodoRaiz).to_picture("arbol_unique.png")
-	showRecorridos(nodoRaiz)
+	# showRecorridos(nodoRaiz)
 	# showRecorridos(nodoRaiz, tablero)
 	cv2.namedWindow("Arbol resultante", cv2.WINDOW_NORMAL)
 	imagenResultante = cv2.imread("arbol_unique.png", cv2.IMREAD_GRAYSCALE)
